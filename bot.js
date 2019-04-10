@@ -21,32 +21,57 @@ const logger = winston.createLogger({
 	]
 });
 
-client.on("message", (message) => {
+function checkIfMessageIsAQuery(message)
+{
+	return new Promise((resolve, reject) => {
+		
+		try
+		{
+			//Check if it's an instance of Discord.Message
+			if(!(message instanceof Discord.Message))
+			{
+				reject("notAMessage");
+			}
+			
+			//Check if author is a bot
+			if (message.author.bot){
+				reject("bot");
+			}
+			
+			// Check, if message is an image
+			if(message.attachments.array().length > 0){
+				reject("attachment");
+			}
+			
+			// Check, if message has any content (elsewise it would crash)
+			if(!message.content){
+				reject("noContent");
+			}
+			
+			resolve(message);
+		}
+		catch(err)
+		{
+			logger.error(err);
+		}
+	});
+}
 
-    //Check if author is a bot
-    if (message.author.bot){
-        return;
-	}
-	
-	// Check, if message is an image
-	if(message.attachments && message.attachments.array().length > 0){
-		return;
-	}
-	
-	// Check, if message has any content (elsewise it would crash)
-	if(message.content){
+
+function handleMessage(message)
+{
+	checkIfMessageIsAQuery(message).then(()=>{
 		
 		if(message.content == "ping")
 		{
-			if(message.channel && message.channel.send)
-			{
-				message.channel.send("pong").catch(err => logger.info(err));
-			}
+			message.channel.send("pong").catch(err => logger.info(err));
 		}
 		
-	}
-    
-});
+	}).catch(err => {
+		
+	});
+}
+
 
 // Time Interval for connectivity state logging
 let interval;
@@ -81,7 +106,7 @@ client.on("resume", () => {
 client.on("error", (error) => {
 	logger.info(error.message);
 });
-
+client.on("message", handleMessage);
 
 logger.info("Bot loaded");
 module.exports = {
