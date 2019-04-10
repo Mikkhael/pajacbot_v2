@@ -1,7 +1,9 @@
 const Discord   = require("discord.js");
 const fs 		= require('fs');
 const winston	= require("winston");
+const Bot	= require("./botUtils.js");
 
+Bot.enchanceDiscord();
 
 const client    = new Discord.Client();
 const PREFIX 	= "()";
@@ -12,8 +14,9 @@ const logger = winston.createLogger({
 		winston.format.timestamp({
 			format: 'YYYY-MM-DD HH:mm:ss'
 		}),
+		winston.format.errors({stack: true}),
 		winston.format.printf(info => {
-			return `[${info.timestamp}] ${info.level}: \t${info.message}`;
+			return `[${info.timestamp}] ${info.level}: \t${info.stack || info.message}`;
 		}),
 	),
 	transports: [
@@ -21,55 +24,24 @@ const logger = winston.createLogger({
 	]
 });
 
-function checkIfMessageIsAQuery(message)
+
+const queryHandler = require("./queryHandler.js");
+
+function handleOnMessage(message)
 {
-	return new Promise((resolve, reject) => {
+	queryHandler.getActionToHandle(message).then(action=>{
+		action.execute(message, Bot);
 		
-		try
+	}).catch(err => {
+		if(err instanceof queryHandler.InvalidQueryError)
 		{
-			//Check if it's an instance of Discord.Message
-			if(!(message instanceof Discord.Message))
-			{
-				reject("notAMessage");
-			}
 			
-			//Check if author is a bot
-			if (message.author.bot){
-				reject("bot");
-			}
-			
-			// Check, if message is an image
-			if(message.attachments.array().length > 0){
-				reject("attachment");
-			}
-			
-			// Check, if message has any content (elsewise it would crash)
-			if(!message.content){
-				reject("noContent");
-			}
-			
-			resolve(message);
 		}
-		catch(err)
+		else
 		{
 			logger.error(err);
 		}
-	});
-}
-
-
-function handleMessage(message)
-{
-	checkIfMessageIsAQuery(message).then(()=>{
-		
-		if(message.content == "ping")
-		{
-			message.channel.send("pong").catch(err => logger.info(err));
-		}
-		
-	}).catch(err => {
-		
-	});
+	})
 }
 
 
@@ -106,7 +78,7 @@ client.on("resume", () => {
 client.on("error", (error) => {
 	logger.info(error.message);
 });
-client.on("message", handleMessage);
+client.on("message", handleOnMessage);
 
 logger.info("Bot loaded");
 module.exports = {
