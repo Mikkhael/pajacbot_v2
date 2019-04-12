@@ -1,7 +1,7 @@
 const Discord   = require("discord.js");
 const fs 		= require('fs');
 const winston	= require("winston");
-const Bot	= require("./botUtils.js");
+const Bot		= require("./botUtils.js");
 
 Bot.enchanceDiscord();
 
@@ -26,14 +26,20 @@ const logger = winston.createLogger({
 
 
 const queryHandler = require("./queryHandler.js");
+const actionHandler = require("./actionHandler.js");
+const actionPerformer = require("./actionPerformer.js");
 
 function handleOnMessage(message)
 {
-	queryHandler.getActionToHandle(message).then(action=>{
-		action.execute(message, Bot);
-		
-	}).catch(err => {
+	queryHandler.handleSimpleQueryMessage(message).then(actions => {
+		actionPerformer.performAllOutputActions(actions, Bot);
+	})
+	.catch(err => {
 		if(err instanceof queryHandler.InvalidQueryError)
+		{
+			
+		}
+		else if(err instanceof actionHandler.ActionHandlerError)
 		{
 			
 		}
@@ -41,7 +47,7 @@ function handleOnMessage(message)
 		{
 			logger.error(err);
 		}
-	})
+	});
 }
 
 

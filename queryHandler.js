@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const messageActions = require("./messageActions.js");
+const messageActions = require("./actionHandler.js");
 
 
 function InvalidQueryError(data)
@@ -7,7 +7,7 @@ function InvalidQueryError(data)
     this.data = data;
 }
 
-function checkIfMessageIsAQuery(message)
+function getInputFromSimpleMessage(message)
 {
     return new Promise((resolve, reject) => {
         
@@ -15,48 +15,44 @@ function checkIfMessageIsAQuery(message)
         if(!(message instanceof Discord.Message))
         {
             reject(new InvalidQueryError("notAMessage"));
+            return;
         }
         
         //Check if author is a bot
         if (message.author.bot){
             reject(new InvalidQueryError("bot"));
+            return;
         }
         
         // Check, if message is an image
         if(message.attachments.array().length > 0){
             reject(new InvalidQueryError("attachment"));
+            return;
         }
         
         // Check, if message has any content (elsewise it would crash)
         if(!message.content){
             reject(new InvalidQueryError("noContent"));
+            return;
         }
         
-        resolve(message);
+        resolve(messageActions.InputAction.createFromSimpleMessage(message));
     });
 }
 
-function getActionToHandle(message)
+function handleInputAction(input)
 {
-    return checkIfMessageIsAQuery(message).then(handleQueryMessage);
+    return messageActions.handleInput(input);
 }
 
-function handleQueryMessage(message) {
-    return new Promise(function(resolve, reject){
-        
-        let action = messageActions.get(message);
-        if(action)
-        {
-            resolve(action);
-        }
-        else
-        {
-            reject(new InvalidQueryError("noAction"));
-        }
-    });
+function handleSimpleQueryMessage(message)
+{
+    return getInputFromSimpleMessage(message).then(handleInputAction);
 }
+
     
 module.exports = {
     InvalidQueryError,
-    getActionToHandle
+    handleSimpleQueryMessage,
+    handleInputAction
 }
