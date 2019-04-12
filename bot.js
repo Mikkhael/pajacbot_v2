@@ -1,6 +1,5 @@
 const Discord   = require("discord.js");
 const fs 		= require('fs');
-const winston	= require("winston");
 const Bot		= require("./botUtils.js");
 
 Bot.enchanceDiscord();
@@ -8,22 +7,7 @@ Bot.enchanceDiscord();
 const client    = new Discord.Client();
 const PREFIX 	= "()";
 
-const logger = winston.createLogger({
-	level: 'debug',
-	format: winston.format.combine(
-		winston.format.timestamp({
-			format: 'YYYY-MM-DD HH:mm:ss'
-		}),
-		winston.format.errors({stack: true}),
-		winston.format.printf(info => {
-			return `[${info.timestamp}] ${info.level}: \t${info.stack || info.message}`;
-		}),
-	),
-	transports: [
-		new winston.transports.Console()
-	]
-});
-
+const logger = require("./logger.js");
 
 const queryHandler = require("./queryHandler.js");
 const actionHandler = require("./actionHandler.js");
@@ -90,6 +74,5 @@ logger.info("Bot loaded");
 module.exports = {
 	login: function(){
 		client.login(process.env.TOKEN).then(() => logger.info("Bot logged in")).catch(err => logger.error("Error while logging: " + err.message));
-	},
-	logger
+	}
 }

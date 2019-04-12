@@ -4,6 +4,7 @@ const fs      	= require("fs");
 const app       = express();
 
 const bot       = require("./bot.js");
+const logger    = require("./logger.js");
 
 const PORT      = process.env.PORT || 3000;
 
@@ -14,11 +15,11 @@ app.get('/', function(request, responce){
 });
 
 app.listen(PORT, function(){
-    bot.logger.info("Listening on port " + PORT);
+    logger.info("Listening on port " + PORT);
 	
 	if(!process.env.TOKEN)
 	{
-        bot.logger.info("No login token defined...");
+        logger.info("No login token defined...");
         return;
     }
     
