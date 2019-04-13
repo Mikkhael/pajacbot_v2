@@ -13,6 +13,8 @@ const queryHandler = require("./queryHandler.js");
 const actionHandler = require("./actionHandler.js");
 const actionPerformer = require("./actionPerformer.js");
 
+const dataManager = require("./dataManager.js");
+
 function handleOnMessage(message)
 {
 	queryHandler.handleSimpleQueryMessage(message).then(actions => {
@@ -73,6 +75,25 @@ client.on("message", handleOnMessage);
 logger.info("Bot loaded");
 module.exports = {
 	login: function(){
-		client.login(process.env.TOKEN).then(() => logger.info("Bot logged in")).catch(err => logger.error("Error while logging: " + err.message));
+		if(dataManager.loadSync())
+		{
+			if(!dataManager.checkValidity())
+			{
+				logger.error("Loaded DATA is ill-formated");
+				dataManager.reset();
+			}
+		}
+		else
+		{
+			logger.error("Cannot load DATA");
+			dataManager.reset();
+		}
+		
+		client.login(process.env.TOKEN)
+		.then(() => {
+			logger.info("Bot logged in");
+			dataManager.enableAutosave(5000);
+		})
+		.catch(err => logger.error("Error while logging: " + err.message));
 	}
 }
