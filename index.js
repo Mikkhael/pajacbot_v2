@@ -19,9 +19,9 @@ app.listen(PORT, function(){
 	
 	if(!process.env.TOKEN)
 	{
-        logger.info("No login token defined...");
+        logger.info("No login token provided...");
         return;
     }
     
-	bot.login();
+	bot.start();
 });

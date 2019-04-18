@@ -1,6 +1,7 @@
 // Requires
 const Discord       = require("discord.js");
 const logger        = require("../logger");
+const dataManager   = require("./dataManager");
 
 
 // Creating the Discord Client
@@ -30,34 +31,97 @@ client.on("message", message => {
         return;
     }
     
-    message.channel.send("Tak");
+    console.log(dataManager.get("test", message.guild && message.guild.available && message.guild.id, message.channel.id));
     
 });
 
 
-// Loging
+// Logging and Sturtup
+
 function login()
 {
-    logger.info("Attempting loggin...");
+    return new Promise((resolve, reject) => {
+        
+        logger.info("Attempting loggin...");
+        
+        // Check if login token is loaded
+        if(!process.env.TOKEN)
+        {
+            logger.info("Unable to login. Token not provided.");
+            reject(new Error("Token is required to login, but not provided"));
+        }
+        else
+        {
+            // Try logging
+            client.login(process.env.TOKEN)
+            .then(()=>{
+                logger.info("Logged in successfully.");
+                resolve();
+            })
+            .catch(error => {
+                logger.info("Unable to login.");
+                reject(error);
+            });
+        }
+    });
+}
+
+function loadData()
+{
     
-    // Check if login token is loaded
-    if(!process.env.TOKEN)
-    {
-        logger.error("TOKEN is not loaded. Unable to login");
-        return;
-    }
-    
-    // Try logging
-    client.login(process.env.TOKEN)
-    .then(()=>{
-        logger.info("Bot logged in successfully");
+    return new Promise((resolve, reject) => {
+        
+        logger.info("Attempting loading data...");
+        
+        // Try loading data
+        dataManager.load()
+        .then(()=>{
+            logger.info("Data loaded successfully.")
+            dataManager.validate();
+            
+            // Enable autosave
+            dataManager.enableAutosave(10 * 1000, function(error){
+                // Callback, if autosave fails
+                if(error instanceof Error)
+                {
+                    logger.info("Unable to autosave file", error);
+                }
+            });
+            resolve();
+        })
+        // In case of impossibility to load correctly
+        .catch(error =>{
+            logger.warn("Unable to load data file", error.message);
+            
+            logger.info("Creating a new data file...");
+            
+            dataManager.validate();
+            dataManager.save()
+            .then(()=>{
+                logger.info("Created new default data file successfully.");
+                resolve();
+            })
+            .catch(error =>{
+                logger.error("Unable to create new data file");
+                reject(error);
+            });
+        });
+        
+    });
+}
+
+function startupRoutine()
+{
+    loadData().then(login).then(()=>{
+        logger.info("--- Bot fully operational ---");
     })
-    .catch( error => {
-        logger.error("Unable to login");
+    .catch(error =>
+    {
+        logger.error(error);
     });
 }
 
 
 module.exports = {
-    login
+    start: startupRoutine
 }
