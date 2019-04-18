@@ -3,8 +3,8 @@ const http      = require("http");
 const fs      	= require("fs");
 const app       = express();
 
-const bot       = require("./bot.js");
-const logger    = require("./logger.js");
+const bot       = require("./bot");
+const logger    = require("./logger");
 
 const PORT      = process.env.PORT || 3000;
 
