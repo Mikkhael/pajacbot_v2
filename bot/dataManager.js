@@ -52,15 +52,15 @@ class DataManager_impl
     {
         let scopeObject = dataObject[scope];
         // global has no ID and you cannot take a porperty of undefined
-        if(scopeObject !== "global" && id !== undefined && scopeObject !== undefined)
+        if(scope !== "global" && id !== undefined && scopeObject !== undefined)
         {
             // If given id is undefined, create one
             if(scopeObject[id] === undefined)
             {
-                scopeObject[id] = {};
+                return undefined;
             }
             
-            scopeObject = scopeObject[id];
+            return scopeObject[id];
         }
         
         return scopeObject;
@@ -104,7 +104,7 @@ class DataManager_impl
     }
     
     // Get an data object with valid fields and default values insted of undefines
-    static getValidatedDataObject(dataObject)
+    static getValidatedDataObject(dataObject, defaultScopeDataLayer)
     {
         let validatedDataObject = {};
         
@@ -196,7 +196,7 @@ class DataManager
     
     static validate()
     {
-        dataObject = DataManager_impl.getValidatedDataObject(dataObject);
+        dataObject = DataManager_impl.getValidatedDataObject(dataObject, defaultScopeDataLayer);
     }
     
     static get(propertyPath, serverId, channelId)
@@ -208,12 +208,9 @@ class DataManager
         }
         return DataManager_impl.getCascaded(dataObject, propertyPath, serverId, channelId);
     }
-    
-    static get _impl()
-    {
-        return DataManager_impl;
-    }
 }
+
+DataManager._impl = DataManager_impl;
 
 
 

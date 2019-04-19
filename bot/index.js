@@ -31,7 +31,7 @@ client.on("message", message => {
         return;
     }
     
-    console.log(dataManager.get("test", message.guild && message.guild.available && message.guild.id, message.channel.id));
+    console.log(dataManager.get(["test"], (message.guild && message.guild.available) ? message.guild.id : undefined, message.channel.id));
     
 });
 
