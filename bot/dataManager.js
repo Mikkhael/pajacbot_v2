@@ -48,6 +48,35 @@ class DataManager_impl
         return result;
     }
     
+    static setInLayer(dataLayerObject, propertyPath, newValue)
+    {
+        if(propertyPath.length < 1)
+        {
+            return false;
+        }
+        
+        let subObject = dataLayerObject;
+        
+        for(let i=0; i<propertyPath.length - 1; i++)
+        {
+            // if given path dosen't exist, create new object
+            if(subObject[propertyPath[i]] === undefined || subObject[propertyPath[i]] === null)
+            {
+                subObject[propertyPath[i]] = {};
+            }
+            // If given path traverses a non-object, abort
+            else if(!(subObject[propertyPath[i]] instanceof Object) || Array.isArray(subObject[propertyPath[i]]))
+            {
+                return false;
+            }
+            // Traversing the path
+            subObject = subObject[propertyPath[i]];
+        }
+        
+        subObject[propertyPath[propertyPath.length - 1]] = newValue;
+        return true;
+    }
+    
     static getScopeLayerObject(dataObject, scope = "global", id = undefined)
     {
         let scopeObject = dataObject[scope];
@@ -78,6 +107,19 @@ class DataManager_impl
     static getChannel(dataObject, propertyPath, id)
     {
         return this.getFromLayer(this.getScopeLayerObject(dataObject, "channel", id), propertyPath);
+    }
+    // Sets sorted by scopes
+    static setGlobal(dataObject, propertyPath, newValue)
+    {
+        return this.setInLayer(this.getScopeLayerObject(dataObject), propertyPath, newValue);
+    }
+    static setServer(dataObject, propertyPath, newValue, id)
+    {
+        return this.setInLayer(this.getScopeLayerObject(dataObject, "server", id), propertyPath, newValue);
+    }
+    static setChannel(dataObject, propertyPath, newValue, id)
+    {
+        return this.setInLayer(this.getScopeLayerObject(dataObject, "channel", id), propertyPath, newValue);
     }
     
     // Get cascaded data property ( Channel > Server > Global )
@@ -207,6 +249,34 @@ class DataManager
             propertyPath = [propertyPath];
         }
         return DataManager_impl.getCascaded(dataObject, propertyPath, serverId, channelId);
+    }
+    
+    static setGlobal(propertyPath, newValue)
+    {
+        let result = DataManager_impl.setGlobal(dataObject, propertyPath, newValue);
+        if(result)
+        {
+           dataIsNotUpToDate = true; 
+        }
+        return result;
+    }
+    static setServer(serverId, propertyPath, newValue)
+    {
+        let result = DataManager_impl.setServer(dataObject, propertyPath, newValue, serverId);
+        if(result)
+        {
+           dataIsNotUpToDate = true; 
+        }
+        return result;
+    }
+    static setChannel(channelId, propertyPath, newValue)
+    {
+        let result = DataManager_impl.setChannel(dataObject, propertyPath, newValue, channelId);
+        if(result)
+        {
+           dataIsNotUpToDate = true; 
+        }
+        return result;
     }
 }
 

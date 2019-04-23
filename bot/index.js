@@ -31,7 +31,12 @@ client.on("message", message => {
         return;
     }
     
-    console.log(dataManager.get(["test"], (message.guild && message.guild.available) ? message.guild.id : undefined, message.channel.id));
+    if(dataManager.get(["test"], undefined, message.channel.id) !== (dataManager.get(["test"])))
+    {
+        dataManager.setChannel(message.channel.id, ["test"], message.content);
+    }
+    
+    message.channel.send((dataManager.get(["test"], message.guild && message.guild.available && message.guild.id, message.channel.id)).toString() || "null");
     
 });
 

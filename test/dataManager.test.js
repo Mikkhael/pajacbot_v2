@@ -68,21 +68,17 @@ describe("Data manager implementation test", ()=>{
         
         assertions.forEach(([scope, id, result]) => {
             
-            describe(`For scope "${scope}" with id "${id}"`, ()=>{
+            it(`For scope "${scope}" with id "${id}". Should return valid data layer object`, ()=>{
                 
-                it(`Should return valid data layer object`, ()=>{
-                    
-                    let value = dataManager._impl.getScopeLayerObject(testObject1, scope, id);
-                    if(result !== undefined)
-                    {
-                        expect(value).to.have.property("prop", result);
-                    }
-                    else
-                    {
-                        expect(value, {});
-                    }
-                    
-                });
+                let value = dataManager._impl.getScopeLayerObject(testObject1, scope, id);
+                if(result !== undefined)
+                {
+                    expect(value).to.have.property("prop", result);
+                }
+                else
+                {
+                    expect(value, {});
+                }
                 
             });
         });
@@ -123,19 +119,92 @@ describe("Data manager implementation test", ()=>{
         
         assertions.forEach(([path, serverId, channelId, result]) => {
             
-            describe(`For path "${path}" with serverId "${serverId}" and channelId "${channelId}"`, ()=>{
-                
-                it(`Should return ${result}`, ()=>{
-                    
-                    let value = dataManager._impl.getCascaded(testObject1, path, serverId, channelId);
-                    expect(value, result);
-                    
-                });
+            it(`For path "${path}" with serverId "${serverId}" and channelId "${channelId}". Should return ${result}`, ()=>{
+            
+                let value = dataManager._impl.getCascaded(testObject1, path, serverId, channelId);
+                expect(value, result);
                 
             });
         });
         
         
+        
+    });
+    
+    
+    
+    describe("Writing data correctly", ()=>{
+        
+        
+        const assertions = [
+            [[], 12, true],
+            [[], {x: 1}, true],
+            [["x", "length"], {x: 1}, true],
+            [["t"], [1, 2, 3, 4]],
+            [["t", "length"], 5, true],
+            [["t", 0], 5, true],
+            [["o1", 0, "val"], 12],
+            [["o1", "x"], 42],
+            [["o1, o2"], 42],
+            [["o1","o2","x"], 42],
+            [["o1", "new", "new", "new", "new"], 42]
+        ];
+        
+        const originalTestObject = {
+            x: "g",
+            o1: {
+                0:{
+                    val: 123
+                },
+                x: "o1",
+                o2: {
+                    x: "o2"
+                }  
+            },
+            t: [1, 2, 3]
+        };
+        
+        assertions.forEach(([path, value, shouldFail]) => {
+            
+            const testObject = {
+                x: "g",
+                o1: {
+                    0:{
+                        val: 123
+                    },
+                    x: "o1",
+                    o2: {
+                        x: "o2"
+                    }  
+                },
+                t: [1, 2, 3]
+            }
+            
+            it(`Writing to path "${path}" a value "${value}"${shouldFail ? ", should fail" : ""}`, ()=>{
+                
+                let succedded = dataManager._impl.setInLayer(testObject, path, value);
+                if(shouldFail)
+                {
+                    expect(succedded, false);
+                    expect(testObject).to.deep.equal(originalTestObject);
+                }
+                else
+                {
+                    expect(succedded, true);
+                    expect(()=>{
+                        let temp = testObject;
+                        for(key of path)
+                        {
+                            temp = temp[key];
+                        }
+                        expect(temp).to.deep.equal(value);
+                    }).to.not.throw();
+                }
+                
+                
+            });
+            
+        });
         
     });
     
