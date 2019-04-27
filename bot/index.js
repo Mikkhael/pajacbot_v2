@@ -4,6 +4,9 @@ const logger        = require("../logger");
 const dataManager   = require("./dataManager");
 
 
+// Enable discord utilities
+require("./discordUtilities");
+
 // Creating the Discord Client
 const client = new Discord.Client();
 
