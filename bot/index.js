@@ -2,6 +2,7 @@
 const Discord       = require("discord.js");
 const logger        = require("../logger");
 const dataManager   = require("./dataManager");
+const actionManager = require("./actionManager");
 
 
 // Enable discord utilities
@@ -29,17 +30,18 @@ client.on("error", (error) => {
 // Message event handling
 client.on("message", message => {
     
-    if(message.author.bot)
+    
+    // Don't handle messages from yourself
+    if(message.author.id === client.user.id)
     {
         return;
     }
     
-    if(dataManager.get(["test"], undefined, message.channel.id) !== (dataManager.get(["test"])))
-    {
-        dataManager.setChannel(message.channel.id, ["test"], message.content);
-    }
-    
-    message.channel.send((dataManager.get(["test"], message.guild && message.guild.available && message.guild.id, message.channel.id)).toString() || "null");
+    // Else, handle the message
+    actionManager.handleMessage(message)
+    .catch( err => {
+        logger.error(err);
+    });
     
 });
 
