@@ -6,15 +6,17 @@ Discord.Message.prototype.respondSimple = function(content)
 {
     if(this.channel)
     {
-        this.channel.send(content.toString());
+        return this.channel.send(content.toString());
     }
+    return Promise.reject(new Error("No channel to send to"));
 }
 Discord.Message.prototype.respondEmbed = function(embed)
 {
     if(this.channel)
     {
-        this.channel.send({embed});
+        return this.channel.send({embed});
     }
+    return Promise.reject(new Error("No channel to send to"));
 }
 
 Discord.Message.prototype.getGuildId = function()
