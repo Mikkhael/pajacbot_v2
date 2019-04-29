@@ -29,14 +29,12 @@ class MessageAction
         // Execute the given matcher function
         let matchResult = this.matcher(message);
         
-        // If it is not a boolean, than it returen data, that may be used by the handler
-        if(!matchResult instanceof Object)
+        if(matchResult)
         {
             return {matched: true, precalculatedData: matchResult};
         }
         
-        // If function returned a Boolean, prepare new result object
-        return {matched: matchResult};
+        return {matched: false};
         
     }
     
