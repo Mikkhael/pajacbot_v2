@@ -9,6 +9,30 @@ Discord.Message.prototype.respondSimple = function(content)
         this.channel.send(content.toString());
     }
 }
+Discord.Message.prototype.respondEmbed = function(embed)
+{
+    if(this.channel)
+    {
+        this.channel.send({embed});
+    }
+}
+
+Discord.Message.prototype.getGuildId = function()
+{
+    if(this.guild && this.guild.available)
+    {
+        return this.guild.id;
+    }
+    return undefined;
+}
+Discord.Message.prototype.getChannelId = function()
+{
+    if(this.channel)
+    {
+        return this.channel.id;
+    }
+    return undefined;
+}
 
 /// Guild ///
 
