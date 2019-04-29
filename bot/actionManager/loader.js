@@ -1,6 +1,4 @@
-const actionPaths = [
-    "./actions/whoispajac"
-];
+const fs = require("fs");
 
 function loadAllActions(targetList)
 {
@@ -8,14 +6,19 @@ function loadAllActions(targetList)
         throw new TypeError("target list should be an array");
     }
     
-    for(let path of actionPaths)
+    const actionPath = __dirname + "/actions/";
+    
+    let actionNames = fs.readdirSync(actionPath);
+    
+    for(let name of actionNames)
     {
-        let messageAction = require(path).messageAction;
+        let messageAction = require(actionPath + name).messageAction;
         targetList.push(messageAction);
     }
+    
+    targetList.sort((a, b) => a.priority < b.priority);
 }
 
 module.exports = {
-    loadAllActions,
-    actionPaths
+    loadAllActions
 }
