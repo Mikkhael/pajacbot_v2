@@ -1,23 +1,28 @@
 class Prototype
 {
-    constructor(argumentTemplates, description)
+    constructor(name, argumentTemplate, description = "")
     {
-        this.argumentTemplates = argumentTemplates;
+        this.name = name;
+        this.argumentTemplate = argumentTemplate;
         this.description = description;
     }
     
-    matchWithArgumentLIst(argumentList)
+    getParsedArguments(argumentList)
     {
-        // TODO
+        let parsed = this.argumentTemplate.parseArgumentsValues(argumentList);
+        if(parsed)
+        {
+            return {matchedPrototype: this.name, parsedArguments: parsed};
+        }
+        return null;
     }
 };
 
 Prototype.ArgumentTemplate = class {
     
-    constructor(templateElementsSections, description)
+    constructor(templateElementsSections)
     {
         this.templateElementsSections = templateElementsSections;
-        this.description = description;
     }
     
     parseArgumentsValues(argumentList)
@@ -25,6 +30,7 @@ Prototype.ArgumentTemplate = class {
         let parsedArguments = {};
         let templateElementsSectionIndex = 0;
         let templateElementIndex = 0;
+        let isGood = true;
         for(let argument of argumentList)
         {
             while(templateElementIndex >= this.templateElementsSections[templateElementsSectionIndex].length)
@@ -41,8 +47,15 @@ Prototype.ArgumentTemplate = class {
             {
                 parsedArguments[templateElement.name] = templateElement.getValue(argument);
             }
+            else
+            {
+                return null;
+            }
+            
+            isGood = templateElementIndex === this.templateElementsSections[templateElementsSectionIndex].length - 1;
+            ++templateElementIndex;
         }
-        return parsedArguments;
+        return isGood ? parsedArguments : null;
     }
     
     getSignatureFormated()
@@ -130,6 +143,12 @@ Prototype.ArgumentTemplate.Element.Number = class extends Prototype.ArgumentTemp
 }
 
 Prototype.ArgumentTemplate.Element.Integer = class extends Prototype.ArgumentTemplate.Element.Number{
+    match(argument)
+    {
+        return /^-?\d+$/.test(argument);
+    }
+}
+Prototype.ArgumentTemplate.Element.Natural = class extends Prototype.ArgumentTemplate.Element.Integer{
     match(argument)
     {
         return /^\d+$/.test(argument);

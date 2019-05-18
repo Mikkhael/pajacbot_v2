@@ -97,63 +97,64 @@ describe("Commands test", ()=>{
         });
     });
     
+    const argumentTemplatesList = [
+        new commands.Prototype.ArgumentTemplate(
+            [[]]
+        ),
+        new commands.Prototype.ArgumentTemplate(
+            [
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum", ["a", "b", "c"]),
+                    new commands.Prototype.ArgumentTemplate.Element.Number("amount")
+                ]
+            ]
+        ),
+        new commands.Prototype.ArgumentTemplate(
+            [
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum", ["a", "b", "c"]),
+                    new commands.Prototype.ArgumentTemplate.Element.Number("amount")
+                ],
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum2", ["c"]),
+                    new commands.Prototype.ArgumentTemplate.Element.Number("amount2"),
+                    new commands.Prototype.ArgumentTemplate.Element.String("str")
+                ],
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.String("str2")
+                ]
+            ]
+        ),
+        new commands.Prototype.ArgumentTemplate(
+            [
+                [],
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.Integer("tak")
+                ]
+            ]
+        ),
+        new commands.Prototype.ArgumentTemplate(
+            [
+                [],
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.Number("tak")
+                ]
+            ]
+        ),
+        new commands.Prototype.ArgumentTemplate(
+            [
+                [],
+                [
+                    new commands.Prototype.ArgumentTemplate.Element.String("tak")
+                ]
+            ]
+        ),
+    ];
     
-    
+    const testCommand = new commands.Command("tak", argumentTemplatesList.map((x, i) => new commands.Prototype(""+i, x)), function(){});
   
     describe("Should correctly show command signatures", () => {
-        const argumentTemplatesList = [
-            new commands.Prototype.ArgumentTemplate(
-                [[]]
-            ),
-            new commands.Prototype.ArgumentTemplate(
-                [
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum", ["a", "b", "c"]),
-                        new commands.Prototype.ArgumentTemplate.Element.Number("amount")
-                    ]
-                ]
-            ),
-            new commands.Prototype.ArgumentTemplate(
-                [
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum", ["a", "b", "c"]),
-                        new commands.Prototype.ArgumentTemplate.Element.Number("amount")
-                    ],
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.Enum("abcEnum2", ["c"]),
-                        new commands.Prototype.ArgumentTemplate.Element.Number("amount2"),
-                        new commands.Prototype.ArgumentTemplate.Element.String("str")
-                    ],
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.String("str2")
-                    ]
-                ]
-            ),
-            new commands.Prototype.ArgumentTemplate(
-                [
-                    [],
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.String("tak")
-                    ]
-                ]
-            ),
-            new commands.Prototype.ArgumentTemplate(
-                [
-                    [],
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.Number("tak")
-                    ]
-                ]
-            ),
-            new commands.Prototype.ArgumentTemplate(
-                [
-                    [],
-                    [
-                        new commands.Prototype.ArgumentTemplate.Element.Integer("tak")
-                    ]
-                ]
-            ),
-        ];
+        
         
         const expectedSignatures = [
             "",
@@ -171,6 +172,50 @@ describe("Commands test", ()=>{
                 let signature = argumentTemplatesList[prototypeIndex].getSignatureFormated();
                 assert.typeOf(signature, "string");
                 assert.equal(signature, expectedSignature);
+                
+            });
+            
+        });
+        
+    });
+    
+    describe("Should correctly parse arguments", () => {
+        
+        
+        const assertions = [
+            [[], "0", {}],
+            [["tak"], "5", {tak: "tak"}],
+            [["123"], "3", {tak: 123}],
+            [["-123"], "3", {tak: -123}],
+            [["0"], "3", {tak: 0}],
+            [["-12.141"], "4", {tak: -12.141}],
+            [["c"], "5", {tak: "c"}],
+            [["c", "123"], "1", {abcEnum: "c", amount: 123}],
+            [["c", "asd"]],
+            [["d", "123"]],
+            [["d"], "5", {tak: "d"}],
+            [["c", "123", "x"]],
+            [["c", "123", "c", "44", "45"], "2", {abcEnum: "c", amount: 123, amount2: 44, str: "45", abcEnum2: "c"}],
+            [["a", "123", "c", "44", "45", "sssss"], "2", {abcEnum: "a", amount: 123, amount2: 44, str: "45", abcEnum2: "c", str2: "sssss"}],
+            [["c", "123", "c", "44x2", "45", "sssss"]],
+            [["c", "123", "a", "42", "45", "sssss"]],
+            [["c", "123", "c", "42", "45", "sssss", "0"]],
+        ];
+        
+        assertions.forEach(([argumentList, prototype, parsedArguments]) => {
+             
+            it(`Should parse [${JSON.stringify(argumentList)}] with prototype nr "${prototype}" as ${JSON.stringify(parsedArguments)}`, ()=>{
+                
+                let parsed = testCommand.getParsedArguments(argumentList);
+                if(!prototype)
+                {
+                    assert.isNull(parsed);
+                }
+                else
+                {
+                    assert.equal(parsed.matchedPrototype, prototype, "Wrong prototype has been chosen");
+                    assert.deepEqual(parsed.parsedArguments, parsedArguments, "Arguments were parsed incorrectly");
+                }
                 
             });
             
