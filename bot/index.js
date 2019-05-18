@@ -4,6 +4,7 @@ const logger        = require("../logger");
 const dataManager   = require("./dataManager");
 const actionManager = require("./actionManager");
 
+const commands = require("./commands");
 
 // Enable discord utilities
 require("./discordUtilities");
@@ -36,6 +37,8 @@ client.on("message", message => {
     {
         return;
     }
+    
+    console.log(commands.parseArguments(message.content));
     
     // Else, handle the message
     actionManager.handleMessage(message)

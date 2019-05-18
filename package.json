@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive",
+    "testcli": "mocha test/commands.test.js",
     "start": "node index.js",
     "startEnv": "node -r dotenv/config index.js"
   },
