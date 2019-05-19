@@ -244,11 +244,16 @@ class DataManager
     static get(propertyPath, serverId, channelId)
     {
         // If a string instead of Array is passed, change it to a single element Array
-        if(propertyPath instanceof String)
+        if(typeof propertyPath === "string")
         {
             propertyPath = [propertyPath];
         }
         return DataManager_impl.getCascaded(dataObject, propertyPath, serverId, channelId);
+    }
+    
+    static getByMessage(propertyPath, message)
+    {
+        return DataManager.get(propertyPath, message.getGuildId(), message.getChannelId())
     }
     
     static setGlobal(propertyPath, newValue)
