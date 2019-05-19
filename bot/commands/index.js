@@ -2,8 +2,10 @@ const Query = require("./Query");
 const Command = require("./Command");
 const Prototype = require("./Prototype");
 
+const loader = require("./loader");
+
 function parseArguments(argumentsString)
-{    
+{
     const nextArgRegExp = /^\s*(?:(["'])(|(?:[^\\]|\\.)*?)\1|(\S*?))(?:\s+(.*$)|$)/;
     let args = [], rest = (argumentsString || "").replace(/^\s+/, "");
     while(rest)
@@ -29,5 +31,7 @@ module.exports = {
     Command,
     Prototype,
     parseArguments,
-    parseQuery
+    parseQuery,
+    loadAllCommands: loader.loadAllCommands,
+    list: loader.commandsList
 }

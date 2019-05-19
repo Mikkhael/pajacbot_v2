@@ -1,4 +1,4 @@
-module.exports = class Command
+class Command
 {
     constructor(name, prototypes, handler, description = "")
     {
@@ -20,4 +20,33 @@ module.exports = class Command
         }
         return parsed;
     }
+    
+    handle(argumentList, message, bot)
+    {
+        let parsed = this.getParsedArguments(argumentList);
+        if(parsed)
+        {
+            return this.handler(parsed.matchingPrototype, parsed.parsedArguments, message, bot);
+        }
+        throw new Command.InvalidParametersError(this.name);
+    }
 };
+
+Command.InvalidParametersError = class extends Error {
+    constructor(commandName)
+    {
+        super("Invalid parameters provided for command " + commandName);
+        this.commandName = commandName;
+    }
+};
+
+Command.ExecutionError = class extends Error {
+    constructor(commandName, message, params = {})
+    {
+        super("Error occurred while executing command " + commandName + ": " + message);
+        this.commandName = commandName;
+        this.params = params;
+    }
+};
+
+module.exports = Command;

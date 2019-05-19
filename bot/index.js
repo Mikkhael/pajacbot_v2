@@ -4,7 +4,7 @@ const logger        = require("../logger");
 const dataManager   = require("./dataManager");
 const actionManager = require("./actionManager");
 
-const commands = require("./commands");
+const cli = require("./commands");
 
 // Enable discord utilities
 require("./discordUtilities");
@@ -38,7 +38,51 @@ client.on("message", message => {
         return;
     }
     
-    console.log(commands.parseArguments(message.content));
+    // Check, if message is a command
+    if(message.content)
+    {
+        let prefix = dataManager.getByMessage("prefix", message);
+        if(message.content.startsWith(prefix))
+        {
+            // TODO: replace {} with BOT object
+            let query = cli.parseQuery(message.content.slice(prefix.length))
+            
+            logger.info(`Command query:[ quildId:${message.getGuildId()}, channelId:${message.getChannelId()}, authorId:${message.author.id}], name:${query.commandName}`);
+            
+            query.execute(message, {})
+            .then(result=>{
+                if(result)
+                {
+                    logger.info(`Command "${query.commandName}" executed successfully`);
+                }
+                else
+                {
+                    logger.warn(`Command "${query.commandName}" executed unsuccessfully !!!`);
+                }
+            })
+            .catch(err => {
+                if(err instanceof cli.Query.UnknownCommandError)
+                {
+                    message.respondSimple("Command not found... :(");
+                    logger.info(`Command "${query.commandName}" not found`);
+                }
+                else if(err instanceof cli.Command.InvalidParametersError)
+                {
+                    message.respondSimple(err);
+                    // TODO: provide help
+                }
+                else if(err instanceof cli.Command.ExecutionError)
+                {
+                    message.respondSimple(err);
+                }
+                else
+                {
+                    logger.error(err);
+                }
+            });
+            return;
+        }
+    }
     
     // Else, handle the message
     actionManager.handleMessage(message)
@@ -125,7 +169,7 @@ function loadData()
 
 function startupRoutine()
 {
-    loadData().then(login).then(()=>{
+    loadData().then(cli.loadAllCommands).then(login).then(()=>{
         logger.info("--- Bot fully operational ---");
     })
     .catch(error =>

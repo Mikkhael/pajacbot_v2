@@ -31,6 +31,7 @@ Prototype.ArgumentTemplate = class {
         let templateElementsSectionIndex = 0;
         let templateElementIndex = 0;
         let isGood = true;
+        
         for(let argument of argumentList)
         {
             while(templateElementIndex >= this.templateElementsSections[templateElementsSectionIndex].length)
