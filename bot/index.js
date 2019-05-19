@@ -44,12 +44,14 @@ client.on("message", message => {
         let prefix = dataManager.getByMessage("prefix", message);
         if(message.content.startsWith(prefix))
         {
-            // TODO: replace {} with BOT object
             let query = cli.parseQuery(message.content.slice(prefix.length))
             
             logger.info(`Command query:[ quildId:${message.getGuildId()}, channelId:${message.getChannelId()}, authorId:${message.author.id}], name:${query.commandName}`);
             
-            query.execute(message, {})
+            query.execute(message, {
+                client,
+                dataManager
+            })
             .then(result=>{
                 if(result)
                 {
@@ -137,7 +139,7 @@ function loadData()
             dataManager.validate();
             
             // Enable autosave
-            dataManager.enableAutosave(10 * 1000, function(error){
+            dataManager.enableAutosave(1 * 1000, function(error){
                 // Callback, if autosave fails
                 if(error instanceof Error)
                 {

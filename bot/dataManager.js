@@ -256,6 +256,25 @@ class DataManager
         return DataManager.get(propertyPath, message.getGuildId(), message.getChannelId())
     }
     
+    static setInScope(propertyPath, newValue, scope, id)
+    {
+        switch(scope)
+        {
+            case "server":{
+                return DataManager.setServer(id, propertyPath, newValue);
+            }
+            case "channel":{
+                return DataManager.setChannel(id, propertyPath, newValue);
+            }
+            case "global":{
+                return DataManager.setGlobal(propertyPath, newValue);
+            }
+            default:{
+                throw new Error("Invalid scope while setting new data");
+            }
+        }
+    }
+    
     static setGlobal(propertyPath, newValue)
     {
         let result = DataManager_impl.setGlobal(dataObject, propertyPath, newValue);

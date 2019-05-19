@@ -26,7 +26,7 @@ class Command
         let parsed = this.getParsedArguments(argumentList);
         if(parsed)
         {
-            return this.handler(parsed.matchingPrototype, parsed.parsedArguments, message, bot);
+            return this.handler(parsed.matchedPrototype, parsed.parsedArguments, message, bot);
         }
         throw new Command.InvalidParametersError(this.name);
     }
