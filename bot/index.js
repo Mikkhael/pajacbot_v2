@@ -71,7 +71,7 @@ client.on("message", message => {
                 else if(err instanceof cli.Command.InvalidParametersError)
                 {
                     message.respondSimple(err);
-                    // TODO: provide help
+                    cli.apiList["help"].sendCommandHelp(err.commandName, message.channel);
                 }
                 else if(err instanceof cli.Command.ExecutionError)
                 {

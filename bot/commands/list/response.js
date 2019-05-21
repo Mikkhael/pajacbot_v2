@@ -24,7 +24,7 @@ const command = new commands.Command(
                     new commands.Prototype.ArgumentTemplate.Element.Enum("noFormat", ["noFormat"], "Set the flag, to prevet formatting the response text message.")
                 ]
             ]
-        ), "Adds or Overwrites a preset response."),
+        ), "Adds or over-writes a preset response."),
         new commands.Prototype("delete", new commands.Prototype.ArgumentTemplate(
             [
                 [
@@ -74,7 +74,8 @@ const command = new commands.Command(
         }
         return false;
     },
-    "Add or Delete the response triggered by specified message. It is possible to set the hyperlink and an image together with the message."
+    "Add or delete the response triggered by specified message.",
+    "It is possible to set the hyperlink and an image together with the message."
 );
 
 module.exports = {

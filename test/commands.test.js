@@ -158,11 +158,11 @@ describe("Commands test", ()=>{
         
         const expectedSignatures = [
             "",
-            "(a | b | c) <amount>",
-            "(a | b | c) <amount> [ c <amount2> <str> [ <str2> ] ]",
-            "[ <tak> ]",
-            "[ <tak> ]",
-            "[ <tak> ]"
+            "(a|b|c) <amount>",
+            "(a|b|c) <amount> [c <amount2> <str> [<str2>]]",
+            "[<tak>]",
+            "[<tak>]",
+            "[<tak>]"
         ];
         
         expectedSignatures.forEach((expectedSignature, prototypeIndex) => {

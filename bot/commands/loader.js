@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 const commandsList = {};
+const commandsApiList = {};
 
 function loadAllCommands()
 {    
@@ -10,16 +11,18 @@ function loadAllCommands()
     
     for(let name of commandNames)
     {
-        let command = require(listPath + name).command;
+        let command = require(listPath + name);
         if(commandsList[command.name])
         {
             logger.warn("Command names collision while loading commands");
         }
-        commandsList[command.name] = command;
+        commandsApiList[command.command.name] = command;
+        commandsList[command.command.name] = command.command;
     }
 }
 
 module.exports = {
     loadAllCommands,
-    commandsList
+    commandsList,
+    commandsApiList
 }

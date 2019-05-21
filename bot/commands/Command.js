@@ -1,11 +1,12 @@
 class Command
 {
-    constructor(name, prototypes, handler, description = "")
+    constructor(name, prototypes, handler, description = "", addictionalDescription = "")
     {
         this.name = name;
         this.prototypes = prototypes;
         this.handler = handler;
         this.description = description;
+        this.addictionalDescription = addictionalDescription;
     }
     
     getParsedArguments(argumentList)
@@ -30,12 +31,47 @@ class Command
         }
         throw new Command.InvalidParametersError(this.name);
     }
+    
+    getHelp(prototypeId)
+    {
+        let res = "";
+        if(prototypeId || this.prototypes.length == 1)
+        {
+            prototypeId--;
+            if(!this.prototypes[prototypeId])
+            {
+                prototypeId = 0;
+            }
+            
+            res+= `\`${this.name} ${this.prototypes[prototypeId].getSignatureFormated()}\` \n\t${
+                this.prototypes[prototypeId].description ? 
+                    this.prototypes[prototypeId].getDescription() :
+                    this.description + " " + this.addictionalDescription
+            }\n-------------\n`;
+            
+            res += this.prototypes[prototypeId].argumentTemplate.getElementsDescriptionData().map(x => 
+                `\`${x.label}\`\n\t${x.description}`
+            ).join("\n");
+            
+            return res;
+        }
+        else
+        {
+            res += this.description + " " + this.addictionalDescription + "\n";
+            for(let i=0; i<this.prototypes.length;i++)
+            {
+                res+= `**${i+1}.** \`${this.name} ${this.prototypes[i].getSignatureFormated()}\` \n\t\t${this.prototypes[i].getDescription()}\n`;
+            }
+            
+            return res;
+        }
+    }
 };
 
 Command.InvalidParametersError = class extends Error {
     constructor(commandName)
     {
-        super("Invalid parameters provided for command " + commandName);
+        super("Invalid parameters provided for command **" + commandName + "**");
         this.commandName = commandName;
     }
 };
@@ -43,7 +79,7 @@ Command.InvalidParametersError = class extends Error {
 Command.ExecutionError = class extends Error {
     constructor(commandName, message, params = {})
     {
-        super("Error occurred while executing command " + commandName + ": " + message);
+        super("Error occurred while executing command **" + commandName + "**: " + message);
         this.commandName = commandName;
         this.params = params;
     }

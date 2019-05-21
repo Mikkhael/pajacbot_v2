@@ -33,5 +33,6 @@ module.exports = {
     parseArguments,
     parseQuery,
     loadAllCommands: loader.loadAllCommands,
-    list: loader.commandsList
+    list: loader.commandsList,
+    apiList: loader.commandsApiList
 }

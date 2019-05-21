@@ -16,6 +16,14 @@ class Prototype
         }
         return null;
     }
+    
+    getSignatureFormated(){
+        return this.argumentTemplate.getSignatureFormated();
+    }
+    
+    getDescription(){
+        return this.description;
+    }
 };
 
 Prototype.ArgumentTemplate = class {
@@ -30,7 +38,7 @@ Prototype.ArgumentTemplate = class {
         let parsedArguments = {};
         let templateElementsSectionIndex = 0;
         let templateElementIndex = 0;
-        let isGood = true;
+        let isGood = this.templateElementsSections[0].length === 0;
         
         for(let argument of argumentList)
         {
@@ -71,16 +79,33 @@ Prototype.ArgumentTemplate = class {
                 {
                     result += " ";
                 }
-                result += "[ ";
+                result += "[";
             }
             result += templateElements.map(x => x.getSignatureFormated()).join(" ");
             depthOfOptionality++;
         }
         while(--depthOfOptionality > 0)
         {
-            result += " ]";
+            result += "]";
         }
         return result;
+    }
+    
+    getElementsDescriptionData()
+    {
+        let res = [];
+        for(let templateElementsSection of this.templateElementsSections)
+        {
+            for(let templateElement of templateElementsSection)
+            {
+                let descriptionData = templateElement.getDescriptionData();
+                if(descriptionData)
+                {
+                    res.push(descriptionData);
+                }
+            }
+        }
+        return res;
     }
 }
 
@@ -105,6 +130,29 @@ Prototype.ArgumentTemplate.Element = class {
     {
         return `<${this.name}>`;
     }
+    
+    getDescription()
+    {
+        return this.description;
+    }
+    
+    getLabel()
+    {
+        return this.getSignatureFormated();
+    }
+    
+    getDescriptionData()
+    {
+        let description = this.getDescription();
+        if(description)
+        {
+            return {
+                label : this.getLabel(),
+                description
+            };
+        }
+        return null;
+    }
 }
 
 /// Predefined elements
@@ -127,7 +175,7 @@ Prototype.ArgumentTemplate.Element.Enum = class extends Prototype.ArgumentTempla
         {
             return ""+(this.possibleValues[0]);
         }
-        return `(${this.possibleValues.join(" | ")})`;
+        return `(${this.possibleValues.join("|")})`;
     }
 }
 

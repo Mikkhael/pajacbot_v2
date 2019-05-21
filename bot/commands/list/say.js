@@ -27,7 +27,8 @@ const command = new commands.Command(
         }
         return true;
     },
-    "Makes the bot say provided *message*, than, if possible, deletes the command message. Remember to encapsulate the message in quotes if it contains whitespaces."
+    "Makes the bot say provided *message*, than, if possible, deletes the command message",
+    "Remember to encapsulate the message in quotes if it contains whitespaces."
 );
 
 module.exports = {
